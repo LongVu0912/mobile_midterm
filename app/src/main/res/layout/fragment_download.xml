@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MainActivity"
+        android:orientation="vertical">
+
+
+    <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/data_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/buttonsContainers"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="-4dp"
+            android:layout_marginBottom="4dp"
+            tools:listitem="@layout/download_row" />
+
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignParentBottom="true"
+            android:id="@+id/buttonsContainers"
+            android:paddingVertical="6dp"
+            >
+
+        <Button
+                android:id="@+id/add_download_list"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="@drawable/rounded"
+                android:text="@string/add_download"
+                app:backgroundTint="@color/green600" />
+
+        <Button
+                android:text="@string/clear_all"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:id="@+id/clear_download_list"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded"
+                app:backgroundTint="@color/red600"
+                android:textColor="@color/white"
+                android:layout_margin="5dp"/>
+    </LinearLayout>
+
+</RelativeLayout>

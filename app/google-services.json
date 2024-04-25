@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "686454462035",
+    "firebase_url": "https://androidproject-bc3fa-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "androidproject-bc3fa",
+    "storage_bucket": "androidproject-bc3fa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:686454462035:android:5ab15fb4ca6ae84c6318a6",
+        "android_client_info": {
+          "package_name": "com.example.firebaseappp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXa9LBx5Nh9TC2FZUIg2sGoB5VkwpC7gA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:686454462035:android:a30df3574aa28f6d6318a6",
+        "android_client_info": {
+          "package_name": "com.example.listimagesfirebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXa9LBx5Nh9TC2FZUIg2sGoB5VkwpC7gA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:686454462035:android:8245b422ff4632396318a6",
+        "android_client_info": {
+          "package_name": "com.example.mobile_midterm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXa9LBx5Nh9TC2FZUIg2sGoB5VkwpC7gA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
