@@ -1,4 +1,4 @@
-package com.example.mobile_midterm;
+package com.example.mobile_midterm.fragments;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
 
@@ -31,6 +31,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -43,6 +44,8 @@ import java.util.Objects;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mobile_midterm.ItemClickListener;
+import com.example.mobile_midterm.R;
 import com.example.mobile_midterm.adapters.DownloadAdapter;
 import com.example.mobile_midterm.databases.DatabaseHelper;
 import com.example.mobile_midterm.models.DownloadModel;
@@ -97,6 +100,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
         data_list.setLayoutManager(new LinearLayoutManager(view.getContext()));
         data_list.setAdapter(downloadAdapter);
     }
+
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void handleClearAllDownload() {
@@ -277,7 +281,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
                 int progress = (int) ((bytes_downloaded * 100L) / total_size);
                 String status = DownloadUtil.getStatusMessage(cursor);
 
-                publishProgress(new String[]{String.valueOf(progress), String.valueOf(bytes_downloaded), status});
+                publishProgress(String.valueOf(progress), String.valueOf(bytes_downloaded), status);
                 cursor.close();
             }
         }

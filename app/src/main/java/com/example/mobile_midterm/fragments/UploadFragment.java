@@ -1,4 +1,4 @@
-package com.example.mobile_midterm;
+package com.example.mobile_midterm.fragments;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -22,18 +22,20 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.mobile_midterm.R;
+import com.example.mobile_midterm.models.FirebaseDataClass;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
+import java.util.Objects;
 
 public class UploadFragment extends Fragment {
     private FloatingActionButton uploadButton;
@@ -111,6 +113,9 @@ public class UploadFragment extends Fragment {
                         FirebaseDataClass dataClass = new FirebaseDataClass(uri.toString(), finalUpload_name);
                         progressBar.setVisibility(View.INVISIBLE);
                         Toast.makeText(getContext(), "Uploaded", Toast.LENGTH_SHORT).show();
+
+                        TabLayout tabs = getActivity().findViewById(R.id.tab_layout);
+                        tabs.getTabAt(1).select();
                     }
                 });
             }
@@ -129,7 +134,7 @@ public class UploadFragment extends Fragment {
     }
 
     private String getFileExtension(Uri fileUri) {
-        ContentResolver contentResolver = getContext().getContentResolver();
+        ContentResolver contentResolver = requireContext().getContentResolver();
         MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
         return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(fileUri));
     }

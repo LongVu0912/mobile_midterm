@@ -1,4 +1,4 @@
-package com.example.mobile_midterm;
+package com.example.mobile_midterm.models;
 
 import lombok.Getter;
 import lombok.Setter;

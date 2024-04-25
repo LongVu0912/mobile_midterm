@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.mobile_midterm.DownloadFragment;
 import com.example.mobile_midterm.models.DownloadModel;
 
 import java.util.ArrayList;
@@ -52,6 +51,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_NAME, null, values);
         db.close();
     }
+
     @SuppressLint("Range")
     public List<DownloadModel> getAllDownloads() {
         List<DownloadModel> downloadList = new ArrayList<>();
@@ -80,6 +80,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return downloadList;
     }
+
     public void deleteAllDownloads() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DELETE FROM DownloadModel");
