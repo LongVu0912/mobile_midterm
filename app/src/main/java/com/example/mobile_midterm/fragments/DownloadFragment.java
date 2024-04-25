@@ -1,4 +1,4 @@
-package com.example.mobile_midterm.fragments;
+package com.example.mobile_midterm;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
 
@@ -12,13 +12,16 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +34,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -50,31 +52,52 @@ import com.example.mobile_midterm.adapters.DownloadAdapter;
 import com.example.mobile_midterm.databases.DatabaseHelper;
 import com.example.mobile_midterm.models.DownloadModel;
 import com.example.mobile_midterm.utils.DownloadUtil;
+import com.example.mobile_midterm.utils.ExtensionUtil;
 import com.example.mobile_midterm.utils.PathUtil;
 
 import java.util.ArrayList;
 
 public class DownloadFragment extends Fragment implements ItemClickListener {
+
     private static final int PERMISSION_REQUEST_CODE = 101;
     DownloadAdapter downloadAdapter;
     List<DownloadModel> downloadModels = new ArrayList<>();
     private DatabaseHelper dbHelper;
     RecyclerView data_list;
-    View view;
+
     Button add_download_list, clear_download_list;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_download, container, false);
-        initView(view);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_download, container, false);
+
+        this.initView(view);
+
+        Intent intent = getActivity().getIntent();
+        if (intent != null) {
+            String action = intent.getAction();
+            String type = intent.getType();
+            if (Intent.ACTION_SEND.equals(action) && type != null) {
+                if (type.equalsIgnoreCase("text/plain")) {
+                    handleTextData(intent);
+                } else if (type.startsWith("image/")) {
+                    ExtensionUtil.handleImage(intent);
+                } else if (type.equalsIgnoreCase("application/pdf")) {
+                    ExtensionUtil.handlePdfFile(intent);
+                }
+            }
+        }
+
         return view;
     }
 
     private void initView(View view) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            getActivity().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_NOT_EXPORTED);
+        }
+
         //Init props
-        dbHelper = new DatabaseHelper(view.getContext());
+        dbHelper = new DatabaseHelper(getActivity());
         add_download_list = view.findViewById(R.id.add_download_list);
         clear_download_list = view.findViewById(R.id.clear_download_list);
         data_list = view.findViewById(R.id.data_list);
@@ -96,9 +119,17 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
                 }
             }
         }
-        downloadAdapter = new DownloadAdapter(view.getContext(), downloadModels, this);
-        data_list.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        downloadAdapter = new DownloadAdapter(getActivity(), downloadModels, this);
+        data_list.setLayoutManager(new LinearLayoutManager(getActivity()));
         data_list.setAdapter(downloadAdapter);
+    }
+
+    private void handleTextData(Intent intent) {
+        String textdata = intent.getStringExtra(Intent.EXTRA_TEXT);
+        if (textdata != null) {
+            Log.d("Text Data : ", textdata);
+            downloadFile(textdata);
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -115,7 +146,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
     @Override
     public void handleClickDownloadItem(String file_path, String status) {
         if (!Objects.equals(status, "Completed")) {
-            Toast.makeText(view.getContext(), "File is not Downloaded Yet", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "File is not Downloaded Yet", Toast.LENGTH_SHORT).show();
             return;
         }
         openFile(file_path);
@@ -130,13 +161,13 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
             intent.putExtra(Intent.EXTRA_TEXT, "Sharing File from File Downloader");
 
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            Uri path = FileProvider.getUriForFile(view.getContext(), "com.example.download_manager", file);
+            Uri path = FileProvider.getUriForFile(requireContext(), "com.example.mobile_midterm", file);
             intent.putExtra(Intent.EXTRA_STREAM, path);
             intent.setType("*/*");
             startActivity(intent);
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            Toast.makeText(view.getContext(), "No Activity Availabe to Handle File", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "No Activity Availabe to Handle File", Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -157,7 +188,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
 
     @Override
     public void handleShowInputDialog() {
-        AlertDialog.Builder al = new AlertDialog.Builder(view.getContext());
+        AlertDialog.Builder al = new AlertDialog.Builder(requireContext());
         View view = getLayoutInflater().inflate(R.layout.download_input_dialog, null);
         al.setView(view);
 
@@ -165,7 +196,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
         Button paste = view.findViewById(R.id.paste);
 
         paste.setOnClickListener(v -> {
-            ClipboardManager clipboardManager = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipboardManager clipboardManager = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
             try {
                 CharSequence charSequence = Objects.requireNonNull(clipboardManager.getPrimaryClip()).getItemAt(0).getText();
                 editText.setText(charSequence);
@@ -196,7 +227,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
         //Check permission of access storage in android device
         if (!checkPermission()) {
             requestPermission();
-            Toast.makeText(view.getContext(), "Please Allow Permission to Download File", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Please Allow Permission to Download File", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -218,7 +249,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
                 .setAllowedOverRoaming(true);
 
         //add request to download queue
-        DownloadManager downloadManager = (DownloadManager) getContext().getSystemService(DOWNLOAD_SERVICE);
+        DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(DOWNLOAD_SERVICE);
         long downloadId = downloadManager.enqueue(request);
 
         // init model, add to view and db
@@ -257,7 +288,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
 
         @SuppressLint("Range")
         private void downloadFileProcess(String downloadId) {
-            DownloadManager downloadManager = (DownloadManager) getContext().getSystemService(DOWNLOAD_SERVICE);
+            DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(DOWNLOAD_SERVICE);
             boolean downloading = true;
             while (downloading) {
                 DownloadManager.Query query = new DownloadManager.Query();
@@ -281,7 +312,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
                 int progress = (int) ((bytes_downloaded * 100L) / total_size);
                 String status = DownloadUtil.getStatusMessage(cursor);
 
-                publishProgress(String.valueOf(progress), String.valueOf(bytes_downloaded), status);
+                publishProgress(new String[]{String.valueOf(progress), String.valueOf(bytes_downloaded), status});
                 cursor.close();
             }
         }
@@ -308,7 +339,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
             if (comp) {
                 DownloadManager.Query query = new DownloadManager.Query();
                 query.setFilterById(id);
-                DownloadManager downloadManager = (DownloadManager) getContext().getSystemService(DOWNLOAD_SERVICE);
+                DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(DOWNLOAD_SERVICE);
                 Cursor cursor = downloadManager.query(new DownloadManager.Query().setFilterById(id));
                 cursor.moveToFirst();
 
@@ -321,7 +352,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        view.getContext().unregisterReceiver(onComplete);
+        getActivity().unregisterReceiver(onComplete);
     }
 
     public void runTask(DownloadStatusTask downloadStatusTask, String id) {
@@ -333,15 +364,15 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
     }
 
     private void requestPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             Toast.makeText(getContext(), "Please Give Permission to Upload File", Toast.LENGTH_SHORT).show();
         } else {
-            ActivityCompat.requestPermissions((Activity) requireContext(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
         }
     }
 
     private boolean checkPermission() {
-        int result = ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int result = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
         return result == PackageManager.PERMISSION_GRANTED;
     }
 
@@ -350,9 +381,9 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(view.getContext(), "Permission Successfull", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Permission Successfull", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(view.getContext(), "Permission Failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Permission Failed", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -360,12 +391,12 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
     private void openFile(String fileurl) {
         if (!checkPermission()) {
             requestPermission();
-            Toast.makeText(view.getContext(), "Please Allow Permission to Open File", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Please Allow Permission to Open File", Toast.LENGTH_SHORT).show();
             return;
         }
 
         try {
-            fileurl = PathUtil.getPath(view.getContext(), Uri.parse(fileurl));
+            fileurl = PathUtil.getPath(getContext(), Uri.parse(fileurl));
 
             assert fileurl != null;
             File file = new File(fileurl);
@@ -379,12 +410,12 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
 
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            Uri contne = FileProvider.getUriForFile(view.getContext(), "com.example.download_manager", file);
+            Uri contne = FileProvider.getUriForFile(requireContext(), "com.example.mobile_midterm", file);
             intent.setDataAndType(contne, type);
             startActivity(intent);
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            Toast.makeText(view.getContext(), "Unable to Open File", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Unable to Open File", Toast.LENGTH_SHORT).show();
         }
     }
 }
