@@ -22,9 +22,9 @@ public class MainActivity extends AppCompatActivity {
 
         new TabLayoutMediator(tabLayout, viewPager2, (tab, position) -> {
             String text = "";
-            if (position == 0) text = "Download";
-            else if (position == 1) text = "View";
-            else if (position == 2) text = "Upload";
+            if (position == 0) text = "DOWNLOAD";
+            else if (position == 1) text = "VIEW";
+            else if (position == 2) text = "UPLOAD";
             tab.setText(text);
         }).attach();
     }

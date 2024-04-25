@@ -103,7 +103,7 @@
                             android:text="@string/remove"
                             android:textColor="@color/text_white"
                             android:textStyle="bold"
-                            app:backgroundTint="@color/red500" />
+                            app:backgroundTint="@color/red600" />
 
                     <Button
                             android:id="@+id/sharefile"

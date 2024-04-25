@@ -58,7 +58,7 @@ public class FirebaseAdapter extends RecyclerView.Adapter<FirebaseAdapter.MyView
             desertRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    Toast.makeText(context.getApplicationContext(), "delete task successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context.getApplicationContext(), "Delete image from Firebase successfully", Toast.LENGTH_SHORT).show();
                     imageList.remove(position);
                     notifyItemRemoved(position);
 

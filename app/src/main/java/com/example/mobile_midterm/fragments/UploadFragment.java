@@ -91,7 +91,7 @@ public class UploadFragment extends Fragment {
             @Override
             public void onSuccess(Uri uri1) {
                 progressBar.setVisibility(View.INVISIBLE);
-                Toast.makeText(getContext(), "Uploaded", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Uploaded to Firebase successfully", Toast.LENGTH_SHORT).show();
 
                 TabLayout tabs = requireActivity().findViewById(R.id.tab_layout);
                 Objects.requireNonNull(tabs.getTabAt(1)).select();

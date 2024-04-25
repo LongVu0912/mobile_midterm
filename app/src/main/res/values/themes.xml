@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.Mobile_Midterm" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:statusBarColor">@color/green500</item>
     </style>
 
     <style name="Theme.Mobile_Midterm" parent="Base.Theme.Mobile_Midterm" />
