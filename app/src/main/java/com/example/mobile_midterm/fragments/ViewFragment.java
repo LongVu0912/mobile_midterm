@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 public class ViewFragment extends Fragment {
-    public static final String ARG_OBJECT = "object";
     private final ArrayList<FirebaseDataClass> imageList = new ArrayList<>();
     private FirebaseAdapter adapter;
     View view;
@@ -45,7 +44,6 @@ public class ViewFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_view, container, false);
         refreshBtn = view.findViewById(R.id.refresh_btn);
         recyclerView = view.findViewById(R.id.recyclerView);
-
 
 
         ViewCompat.setOnApplyWindowInsetsListener(view.findViewById(R.id.fragment_view), (v, insets) -> {
@@ -96,15 +94,8 @@ public class ViewFragment extends Fragment {
         });
     }
 
-    public void Refresh() {
-        adapter.notifyDataSetChanged();
-    }
-
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
-
-
 }

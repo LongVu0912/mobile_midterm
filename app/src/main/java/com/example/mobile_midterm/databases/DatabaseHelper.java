@@ -51,7 +51,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_NAME, null, values);
         db.close();
     }
-
     @SuppressLint("Range")
     public List<DownloadModel> getAllDownloads() {
         List<DownloadModel> downloadList = new ArrayList<>();
@@ -80,7 +79,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return downloadList;
     }
-
     public void deleteAllDownloads() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DELETE FROM DownloadModel");

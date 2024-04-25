@@ -20,17 +20,12 @@ public class MainActivity extends AppCompatActivity {
         CollectionAdapter adapter = new CollectionAdapter(getSupportFragmentManager(), getLifecycle());
         viewPager2.setAdapter(adapter);
 
-        new TabLayoutMediator(tabLayout,  viewPager2,
-                (tab, position) -> {
-                    String text = "";
-                    if(position == 0)
-                        text = "Download";
-                    else if (position == 1)
-                        text = "View";
-                    else if (position == 2)
-                        text = "Upload";
-                    tab.setText(text);
-                }
-        ).attach();
+        new TabLayoutMediator(tabLayout, viewPager2, (tab, position) -> {
+            String text = "";
+            if (position == 0) text = "Download";
+            else if (position == 1) text = "View";
+            else if (position == 2) text = "Upload";
+            tab.setText(text);
+        }).attach();
     }
 }

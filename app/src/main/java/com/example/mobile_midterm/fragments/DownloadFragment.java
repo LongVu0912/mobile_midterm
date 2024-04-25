@@ -1,10 +1,9 @@
-package com.example.mobile_midterm;
+package com.example.mobile_midterm.fragments;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.ClipboardManager;
@@ -32,7 +31,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -73,7 +71,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
 
         this.initView(view);
 
-        Intent intent = getActivity().getIntent();
+        Intent intent = requireActivity().getIntent();
         if (intent != null) {
             String action = intent.getAction();
             String type = intent.getType();
@@ -93,7 +91,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
 
     private void initView(View view) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            getActivity().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_NOT_EXPORTED);
+            requireActivity().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_NOT_EXPORTED);
         }
 
         //Init props
@@ -196,7 +194,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
         Button paste = view.findViewById(R.id.paste);
 
         paste.setOnClickListener(v -> {
-            ClipboardManager clipboardManager = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipboardManager clipboardManager = (ClipboardManager) requireActivity().getSystemService(Context.CLIPBOARD_SERVICE);
             try {
                 CharSequence charSequence = Objects.requireNonNull(clipboardManager.getPrimaryClip()).getItemAt(0).getText();
                 editText.setText(charSequence);
@@ -249,7 +247,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
                 .setAllowedOverRoaming(true);
 
         //add request to download queue
-        DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(DOWNLOAD_SERVICE);
+        DownloadManager downloadManager = (DownloadManager) requireActivity().getSystemService(DOWNLOAD_SERVICE);
         long downloadId = downloadManager.enqueue(request);
 
         // init model, add to view and db
@@ -288,7 +286,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
 
         @SuppressLint("Range")
         private void downloadFileProcess(String downloadId) {
-            DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(DOWNLOAD_SERVICE);
+            DownloadManager downloadManager = (DownloadManager) requireActivity().getSystemService(DOWNLOAD_SERVICE);
             boolean downloading = true;
             while (downloading) {
                 DownloadManager.Query query = new DownloadManager.Query();
@@ -339,7 +337,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
             if (comp) {
                 DownloadManager.Query query = new DownloadManager.Query();
                 query.setFilterById(id);
-                DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(DOWNLOAD_SERVICE);
+                DownloadManager downloadManager = (DownloadManager) requireActivity().getSystemService(DOWNLOAD_SERVICE);
                 Cursor cursor = downloadManager.query(new DownloadManager.Query().setFilterById(id));
                 cursor.moveToFirst();
 
@@ -352,7 +350,7 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        getActivity().unregisterReceiver(onComplete);
+        requireActivity().unregisterReceiver(onComplete);
     }
 
     public void runTask(DownloadStatusTask downloadStatusTask, String id) {
@@ -410,7 +408,8 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
 
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            Uri contne = FileProvider.getUriForFile(requireContext(), "com.example.mobile_midterm", file);
+            Context context = requireContext();
+            Uri contne = FileProvider.getUriForFile(context, "com.example.mobile_midterm", file);
             intent.setDataAndType(contne, type);
             startActivity(intent);
         } catch (Exception e) {

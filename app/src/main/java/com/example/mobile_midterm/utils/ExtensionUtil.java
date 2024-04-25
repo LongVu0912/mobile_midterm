@@ -15,7 +15,7 @@ public class ExtensionUtil {
         }
     }
 
-    public static  void handleImage(Intent intent) {
+    public static void handleImage(Intent intent) {
         Uri image = intent.getParcelableExtra(Intent.EXTRA_STREAM);
         if (image != null) {
             Log.d("Image File Path : ", Objects.requireNonNull(image.getPath()));
