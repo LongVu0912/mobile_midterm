@@ -31,7 +31,6 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class ViewFragment extends Fragment {
     private final ArrayList<FirebaseDataClass> imageList = new ArrayList<>();
@@ -76,12 +75,9 @@ public class ViewFragment extends Fragment {
         adapter = new FirebaseAdapter(view.getContext(), imageList);
         recyclerView.setAdapter(adapter);
 
-        long startTime = System.currentTimeMillis();
         FirebaseStorage.getInstance().getReference().child("Images").listAll().addOnCompleteListener(new OnCompleteListener<ListResult>() {
             @Override
             public void onComplete(@NonNull Task<ListResult> task) {
-                int totalImages = task.getResult().getItems().size();
-                AtomicInteger loadedImages = new AtomicInteger();
 
                 for (StorageReference item : task.getResult().getItems()) {
                     String imageName = item.getName();
@@ -98,12 +94,6 @@ public class ViewFragment extends Fragment {
                                 }
                             });
                             adapter.notifyDataSetChanged();
-
-                            if (loadedImages.incrementAndGet() == totalImages) {
-                                long endTime = System.currentTimeMillis(); // Record the end time
-                                long totalTimeSeconds = (endTime - startTime) / 1000; // Calculate the elapsed time
-                                Toast.makeText(getContext(), "All images have been loaded. Total load time: " + totalTimeSeconds + " seconds", Toast.LENGTH_SHORT).show();
-                            }
                         }
                     });
                 }
