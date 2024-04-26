@@ -40,6 +40,9 @@ import java.util.Objects;
 public class UploadFragment extends Fragment {
 
     private ImageView uploadImage;
+    private long startTime;
+    private int completedUploads = 0;
+    private int totalUploads = 0;
     EditText uploadName;
     ProgressBar progressBar;
     private Uri imageUri;
@@ -62,14 +65,15 @@ public class UploadFragment extends Fragment {
                 Intent data = result.getData();
                 assert data != null;
                 if (data.getClipData() != null) { // Handling multiple images
-                    int count = data.getClipData().getItemCount();
-                    if (count > 1) {
-                        for (int i = 0; i < count; i++) {
+                    totalUploads = data.getClipData().getItemCount();
+                    if (totalUploads > 1) {
+                        startTime = System.currentTimeMillis();
+                        for (int i = 0; i < totalUploads; i++) {
                             Uri imageUri = data.getClipData().getItemAt(i).getUri();
                             uploadToFirebase(imageUri); // Call the upload function for each image
                         }
                     } else {
-                        imageUri = data.getClipData().getItemAt(0).getUri();
+                        imageUri = data.getData();
                         uploadImage.setImageURI(imageUri);
                     }
                 } else if (data.getData() != null) { // Handling single image selection
@@ -91,6 +95,9 @@ public class UploadFragment extends Fragment {
         uploadButton.setOnClickListener(view2 -> {
             if (imageUri != null) {
                 uploadToFirebase(imageUri);
+                Toast.makeText(getContext(), "Successfully upload an image", Toast.LENGTH_SHORT).show();
+                TabLayout tabs = requireActivity().findViewById(R.id.tab_layout);
+                Objects.requireNonNull(tabs.getTabAt(1)).select();
             } else {
                 Toast.makeText(getContext(), "Please select image", Toast.LENGTH_SHORT).show();
             }
@@ -111,31 +118,26 @@ public class UploadFragment extends Fragment {
         String upload_name = uploadName.getText().toString();
         if (upload_name.isEmpty()) {
             upload_name = getFileName(uri);
-        }
-        else {
+        } else {
             upload_name = upload_name + "." + getFileExtension(uri);
         }
         final StorageReference imageReference = storageReference.child(upload_name);
-        imageReference.putFile(uri).addOnSuccessListener(taskSnapshot -> imageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri1) {
+        imageReference.putFile(uri).addOnSuccessListener(taskSnapshot -> {
+            imageReference.getDownloadUrl().addOnSuccessListener(uri1 -> {
                 progressBar.setVisibility(View.INVISIBLE);
-                Toast.makeText(getContext(), "Uploaded to Firebase successfully", Toast.LENGTH_SHORT).show();
-
-                TabLayout tabs = requireActivity().findViewById(R.id.tab_layout);
-                Objects.requireNonNull(tabs.getTabAt(1)).select();
-            }
-        })).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
-                progressBar.setVisibility(View.VISIBLE);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                progressBar.setVisibility(View.INVISIBLE);
-                Toast.makeText(getContext(), "Failed", Toast.LENGTH_SHORT).show();
-            }
+                completedUploads++;
+                if (completedUploads == totalUploads) {
+                    long endTime = System.currentTimeMillis();
+                    long totalTime = endTime - startTime;
+                    long totalTimeSeconds = totalTime / 1000;
+                    Toast.makeText(getContext(), "Successfully, Total upload time: " + totalTimeSeconds + " seconds", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }).addOnProgressListener(snapshot -> {
+            progressBar.setVisibility(View.VISIBLE);
+        }).addOnFailureListener(e -> {
+            progressBar.setVisibility(View.INVISIBLE);
+            Toast.makeText(getContext(), "Failed", Toast.LENGTH_SHORT).show();
         });
     }
 

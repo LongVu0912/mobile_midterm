@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,6 +22,7 @@ import com.example.mobile_midterm.R;
 import com.example.mobile_midterm.adapters.FirebaseAdapter;
 import com.example.mobile_midterm.models.FirebaseDataClass;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
@@ -29,12 +31,13 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ViewFragment extends Fragment {
     private final ArrayList<FirebaseDataClass> imageList = new ArrayList<>();
     private FirebaseAdapter adapter;
     View view;
-    Button refreshBtn;
+    Button refreshBtn, deleteAllBtn;
     RecyclerView recyclerView;
 
     @Nullable
@@ -44,7 +47,7 @@ public class ViewFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_view, container, false);
         refreshBtn = view.findViewById(R.id.refresh_btn);
         recyclerView = view.findViewById(R.id.recyclerView);
-
+        deleteAllBtn = view.findViewById(R.id.deleteAll_btn);
 
         ViewCompat.setOnApplyWindowInsetsListener(view.findViewById(R.id.fragment_view), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -52,12 +55,16 @@ public class ViewFragment extends Fragment {
             return insets;
         });
 
-
         GetImageFromFirebase();
 
         refreshBtn.setOnClickListener(v -> {
             imageList.clear();
             GetImageFromFirebase();
+        });
+
+        deleteAllBtn.setOnClickListener(v -> {
+            Toast.makeText(getContext(), "DELETE ALL IMAGES", Toast.LENGTH_SHORT).show();
+            handleDeleteAllImage();
         });
 
         return view;
@@ -69,9 +76,13 @@ public class ViewFragment extends Fragment {
         adapter = new FirebaseAdapter(view.getContext(), imageList);
         recyclerView.setAdapter(adapter);
 
+        long startTime = System.currentTimeMillis();
         FirebaseStorage.getInstance().getReference().child("Images").listAll().addOnCompleteListener(new OnCompleteListener<ListResult>() {
             @Override
             public void onComplete(@NonNull Task<ListResult> task) {
+                int totalImages = task.getResult().getItems().size();
+                AtomicInteger loadedImages = new AtomicInteger();
+
                 for (StorageReference item : task.getResult().getItems()) {
                     String imageName = item.getName();
                     item.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -87,11 +98,52 @@ public class ViewFragment extends Fragment {
                                 }
                             });
                             adapter.notifyDataSetChanged();
+
+                            if (loadedImages.incrementAndGet() == totalImages) {
+                                long endTime = System.currentTimeMillis(); // Record the end time
+                                long totalTimeSeconds = (endTime - startTime) / 1000; // Calculate the elapsed time
+                                Toast.makeText(getContext(), "All images have been loaded. Total load time: " + totalTimeSeconds + " seconds", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
                 }
             }
         });
+    }
+
+    private void handleDeleteAllImage() {
+        // Create a storage reference from our app
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("Images");
+        storageRef.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
+                    @SuppressLint("NotifyDataSetChanged")
+                    @Override
+                    public void onSuccess(ListResult listResult) {
+                        StorageReference desertRef;
+                        for (StorageReference item : listResult.getItems()) {
+                            desertRef = storageRef.child(item.getName());
+                            desertRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    Toast.makeText(getContext(), "Uh-oh, an error occurred!", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                        Toast.makeText(getContext(), "Delete all images successfully", Toast.LENGTH_SHORT).show();
+                        imageList.clear();
+                        adapter.notifyDataSetChanged();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Uh-oh, an error occurred!
+                        Toast.makeText(getContext(), "Uh-oh, an error occurred!", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override

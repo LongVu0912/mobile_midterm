@@ -9,4 +9,6 @@
     <string name="add_download">ADD DOWNLOAD</string>
     <string name="clear_all">CLEAR ALL</string>
     <string name="paste">PASTE</string>
+    <string name="refresh">REFRESH</string>
+    <string name="delete_all">DELETE ALL</string>
 </resources>

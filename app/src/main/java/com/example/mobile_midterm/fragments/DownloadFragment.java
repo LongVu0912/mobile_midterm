@@ -221,7 +221,6 @@ public class DownloadFragment extends Fragment implements ItemClickListener {
     }
 
     private void downloadFile(String url) {
-
         //Check permission of access storage in android device
         if (!checkPermission()) {
             requestPermission();
