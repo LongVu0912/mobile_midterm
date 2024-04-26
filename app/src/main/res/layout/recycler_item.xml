@@ -8,17 +8,30 @@
 
     <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="250dp"
+            android:layout_height="100dp"
             android:layout_marginStart="20dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="20dp"
             android:elevation="10dp"
             app:cardCornerRadius="20dp">
 
+        <TextView
+                android:id="@+id/recyclerCaption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:text="caption"
+                android:paddingStart="15dp"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
         <ImageView
                 android:id="@+id/recyclerImage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_below="@+id/recyclerCaption"
                 android:scaleType="centerCrop" />
     </androidx.cardview.widget.CardView>
 
@@ -28,16 +41,6 @@
             android:paddingHorizontal="20dp"
             android:paddingTop="10dp">
 
-        <TextView
-                android:id="@+id/recyclerCaption"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:text="caption"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                android:textStyle="bold" />
 
         <Button
                 android:id="@+id/copy_btn"

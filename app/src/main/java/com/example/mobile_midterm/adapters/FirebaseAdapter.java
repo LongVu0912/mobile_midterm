@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
@@ -55,6 +56,7 @@ public class FirebaseAdapter extends RecyclerView.Adapter<FirebaseAdapter.MyView
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, @SuppressLint("RecyclerView") int position) {
+
         Glide.with(context).load(imageList.get(position).getImageUrl())
                 .listener(new RequestListener<Drawable>() {
                     @Override
@@ -119,7 +121,7 @@ public class FirebaseAdapter extends RecyclerView.Adapter<FirebaseAdapter.MyView
     @Override
     public void onViewRecycled(@NonNull MyViewHolder holder) {
         super.onViewRecycled(holder);
-        Glide.with(context).clear(holder.imageView); // Clear the image to prevent wrong images shown while scrolling
+        Glide.with(context).clear(holder.imageView);
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {

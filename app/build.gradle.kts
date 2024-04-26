@@ -50,4 +50,5 @@ dependencies {
 
     compileOnly("org.projectlombok:lombok:1.18.20")
     annotationProcessor("org.projectlombok:lombok:1.18.20")
+    implementation("com.google.firebase:firebase-appcheck-safetynet:16.0.0-beta02")
 }

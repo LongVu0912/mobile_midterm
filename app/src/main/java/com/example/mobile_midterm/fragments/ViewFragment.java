@@ -15,6 +15,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -71,7 +72,8 @@ public class ViewFragment extends Fragment {
 
     private void GetImageFromFirebase() {
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(view.getContext(), 2); // 2 items per row
+        recyclerView.setLayoutManager(gridLayoutManager);
         adapter = new FirebaseAdapter(view.getContext(), imageList);
         recyclerView.setAdapter(adapter);
 
